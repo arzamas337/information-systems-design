@@ -12,40 +12,25 @@ public class Client {
                   String address, String telephone, String contactPerson) {
         this.clientId = idCounter++;
 
-        if (!validateOrganizationName(organizationName)) {
-            throw new IllegalArgumentException("Некорректное название организации");
+        this.organizationName = IsValid(organizationName, "Некорректное название организации");
+        this.typeProperty = IsValid(typeProperty, "Некорректный вид собственности");
+        this.address = validateAddress(address);
+        this.telephone = normalizePhone(telephone);
+        this.contactPerson = IsValid(contactPerson, "Некорректное контактное лицо");
+    }
+
+    private static String IsValid(String value, String errorMessage) {
+        if (value == null || value.trim().isEmpty()) {
+            throw new IllegalArgumentException(errorMessage);
         }
-        if (!validateTypeProperty(typeProperty)) {
-            throw new IllegalArgumentException("Некорректный вид собственности");
-        }
-        if (!validateAddress(address)) {
+        return value.trim();
+    }
+
+    private static String validateAddress(String address) {
+        if (address == null || address.trim().isEmpty() || address.trim().length() <= 2) {
             throw new IllegalArgumentException("Некорректный адрес");
         }
-        if (!validateContactPerson(contactPerson)) {
-            throw new IllegalArgumentException("Некорректное контактное лицо");
-        }
-
-        this.organizationName = organizationName;
-        this.typeProperty = typeProperty;
-        this.address = address;
-        this.telephone = normalizePhone(telephone);
-        this.contactPerson = contactPerson;
-    }
-
-    private static boolean validateOrganizationName(String name) {
-        return name != null && !name.trim().isEmpty();
-    }
-
-    private static boolean validateTypeProperty(String type) {
-        return type != null && !type.trim().isEmpty();
-    }
-
-    private static boolean validateAddress(String addr) {
-        return addr != null && addr.length() > 5;
-    }
-
-    private static boolean validateContactPerson(String person) {
-        return person != null && !person.trim().isEmpty();
+        return address.trim();
     }
 
     private static String normalizePhone(String phone) {
@@ -74,10 +59,7 @@ public class Client {
     }
 
     public void setOrganizationName(String organizationName) {
-        if (!validateOrganizationName(organizationName)) {
-            throw new IllegalArgumentException("Некорректное название организации");
-        }
-        this.organizationName = organizationName;
+        this.organizationName = IsValid(organizationName, "Некорректное название организации");
     }
 
     public String getTypeProperty() {
@@ -85,10 +67,7 @@ public class Client {
     }
 
     public void setTypeProperty(String typeProperty) {
-        if (!validateTypeProperty(typeProperty)) {
-            throw new IllegalArgumentException("Некорректный вид собственности");
-        }
-        this.typeProperty = typeProperty;
+        this.typeProperty = IsValid(typeProperty, "Некорректный вид собственности");
     }
 
     public String getAddress() {
@@ -96,10 +75,7 @@ public class Client {
     }
 
     public void setAddress(String address) {
-        if (!validateAddress(address)) {
-            throw new IllegalArgumentException("Некорректный адрес");
-        }
-        this.address = address;
+        this.address = validateAddress(address);
     }
 
     public String getTelephone() {
@@ -115,9 +91,6 @@ public class Client {
     }
 
     public void setContactPerson(String contactPerson) {
-        if (!validateContactPerson(contactPerson)) {
-            throw new IllegalArgumentException("Некорректное контактное лицо");
-        }
-        this.contactPerson = contactPerson;
+        this.contactPerson = IsValid(contactPerson, "Некорректное контактное лицо");
     }
 }
