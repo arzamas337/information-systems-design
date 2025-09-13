@@ -1,3 +1,11 @@
+package org.example;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+
+import java.io.FileReader;
+import java.io.IOException;
+
 public class Client {
 
     private static int idCounter = 1;
@@ -11,12 +19,46 @@ public class Client {
     public Client(String organizationName, String typeProperty,
                   String address, String telephone, String contactPerson) {
         this.clientId = idCounter++;
-
         this.organizationName = IsValid(organizationName, "Некорректное название организации");
         this.typeProperty = IsValid(typeProperty, "Некорректный вид собственности");
         this.address = validateAddress(address);
         this.telephone = normalizePhone(telephone);
         this.contactPerson = IsValid(contactPerson, "Некорректное контактное лицо");
+    }
+
+    public Client(String jsonFilePath, boolean fromFile) throws IOException {
+        try (FileReader reader = new FileReader(jsonFilePath)) {
+            Gson gson = new Gson();
+            Client temp = gson.fromJson(reader, Client.class);
+
+            this.clientId = idCounter++;
+            this.organizationName = IsValid(temp.organizationName, "Некорректное название организации");
+            this.typeProperty = IsValid(temp.typeProperty, "Некорректный вид собственности");
+            this.address = validateAddress(temp.address);
+            this.telephone = normalizePhone(temp.telephone);
+            this.contactPerson = IsValid(temp.contactPerson, "Некорректное контактное лицо");
+        } catch (JsonSyntaxException e) {
+            throw new IllegalArgumentException("Ошибка в формате JSON", e);
+        }
+    }
+
+    public Client(String dataString){
+        if (dataString == null || dataString.trim().isEmpty()) {
+            throw new IllegalArgumentException("Строка с данными пуста");
+        }
+
+        String[] parts = dataString.split(" ");
+        if (parts.length != 5) {
+            throw new IllegalArgumentException(
+                    "Строка должна содержать 5 параметров: организация собственность адрес телефон контактное лицо"
+            );
+        }
+        this.clientId = idCounter++;
+        this.organizationName = IsValid(parts[0], "Некорректное название организации");
+        this.typeProperty = IsValid(parts[1], "Некорректный вид собственности");
+        this.address = validateAddress(parts[2]);
+        this.telephone = normalizePhone(parts[3]);
+        this.contactPerson = IsValid(parts[4], "Некорректное контактное лицо");
     }
 
     private static String IsValid(String value, String errorMessage) {
@@ -49,6 +91,8 @@ public class Client {
         }
         throw new IllegalArgumentException("Некорректный формат номера: " + phone);
     }
+
+    // ======= Геттеры и сеттеры =======
 
     public int getClientId() {
         return clientId;
